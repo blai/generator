@@ -18,13 +18,19 @@ describe('RunContext', function () {
   });
 
   describe('constructor', function () {
-    it('accept path parameter', function () {
+    it('accept path parameter', function (done) {
       var ctx = new RunContext(path.join(__dirname, './fixtures/custom-generator-simple'));
-      assert(ctx.env.get('simple:app'));
+      ctx.on('ready', function () {
+        assert(ctx.env.get('simple:app'));
+        done();
+      });
     });
 
-    it('accept generator constructor parameter (and assign gen:test as namespace)', function () {
-      assert(this.ctx.env.get('gen:test'));
+    it('accept generator constructor parameter (and assign gen:test as namespace)', function (done) {
+      this.ctx.on('ready', function () {
+        assert(this.ctx.env.get('gen:test'));
+        done();
+      }.bind(this));
     });
 
     it('run the generator asynchronously', function (done) {
