@@ -154,6 +154,38 @@ describe('RunContext', function () {
     });
   });
 
+  describe('#withGenerators()', function () {
+    it('should register paths', function (done) {
+      this.ctx.withGenerators([
+        path.join(__dirname, './fixtures/custom-generator-simple')
+      ]).on('ready', function () {
+        assert(this.ctx.env.get('simple:app'));
+        done();
+      }.bind(this));
+    });
+
+    it('should register mocked generator', function (done) {
+      this.ctx.withGenerators([
+        [helpers.createDummyGenerator(), 'dummy:gen']
+      ]).on('ready', function () {
+        assert(this.ctx.env.get('dummy:gen'));
+        done();
+      }.bind(this));
+    });
+
+    it('should only take the generators passed in with the last call', function (done) {
+      this.ctx.withGenerators([
+        path.join(__dirname, './fixtures/custom-generator-simple')
+      ]).withGenerators([
+        [helpers.createDummyGenerator(), 'dummy:gen']
+      ]).on('ready', function () {
+        assert(this.ctx.env.get('dummy:gen'));
+        assert.equal(this.ctx.env.get('simple:app'), null);
+        done();
+      }.bind(this));
+    });
+  });
+
   describe('#onEnd()', function () {
     it('is called after the generator ran', function (done) {
       assert(this.execSpy.notCalled);
